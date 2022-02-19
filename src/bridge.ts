@@ -7,13 +7,6 @@ enum BridgeCallType {
   LISTENER = "LISTENER",
 }
 
-const nativeProcess = (bridgeCallJson: BridgeCallData): void => {
-  // eslint-disable-next-line no-prototype-builtins
-  if (window.hasOwnProperty("native")) {
-    window["native"].process(bridgeCallJson);
-  }
-};
-
 class BridgeCall {
   readonly id: BridgeCallId = uuidv4();
   readonly name: string;
@@ -50,7 +43,17 @@ export class Bridge {
 
   send(bridgeCall: BridgeCall): void {
     this.bridgeCallMap.set(bridgeCall.id, bridgeCall);
-    nativeProcess(JSON.stringify(bridgeCall));
+    // eslint-disable-next-line no-prototype-builtins
+    if (window.hasOwnProperty("native")) {
+      try {
+        window["native"].process(JSON.stringify(bridgeCall));
+      } catch (error) {
+        this.bridgeCallMap.delete(bridgeCall.id);
+        throw error;
+      }
+    } else {
+      this.bridgeCallMap.delete(bridgeCall.id);
+    }
   }
 
   remove(id: BridgeCallId): boolean {
