@@ -4,6 +4,7 @@
         "target": "ES6",
         "module": "CommonJS",
         "declaration": true,
+        "suppressImplicitAnyIndexErrors": true,
         "outDir": "./lib",
     },
     "include": [

@@ -1,4 +1,4 @@
-import { BridgeCallId, BridgeCallData, Resolve, Reject, Listener, native } from "./types";
+import { BridgeCallId, BridgeCallData, Resolve, Reject, Listener } from "./types";
 import { v4 as uuidv4 } from "uuid";
 
 enum BridgeCallType {
@@ -6,6 +6,13 @@ enum BridgeCallType {
   ASYNC = "ASYNC",
   LISTENER = "LISTENER",
 }
+
+const nativeProcess = (bridgeCallJson: BridgeCallData): void => {
+  // eslint-disable-next-line no-prototype-builtins
+  if (window.hasOwnProperty("native")) {
+    window["native"].process(bridgeCallJson);
+  }
+};
 
 class BridgeCall {
   readonly id: BridgeCallId = uuidv4();
@@ -43,7 +50,7 @@ export class Bridge {
 
   send(bridgeCall: BridgeCall): void {
     this.bridgeCallMap.set(bridgeCall.id, bridgeCall);
-    native.process(JSON.stringify(bridgeCall));
+    nativeProcess(JSON.stringify(bridgeCall));
   }
 
   remove(id: BridgeCallId): boolean {
