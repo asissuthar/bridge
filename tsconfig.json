@@ -1,16 +1,14 @@
 {
     "compilerOptions": {
         "strict": true,
-        "noImplicitAny": true,
         "target": "ES6",
         "module": "CommonJS",
-        "sourceMap": true,
-        "esModuleInterop": true,
-        "allowJs": true,
-        "suppressImplicitAnyIndexErrors": true,
-        "experimentalDecorators": true,
-        "declaration": true
+        "declaration": true,
+        "outDir": "./lib",
     },
+    "include": [
+        "src"
+    ],
     "exclude": [
         "node_modules"
     ]

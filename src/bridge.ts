@@ -1,15 +1,16 @@
-import { v4 as uuidv4 } from 'uuid';
+import { BridgeCallId, BridgeCallData, Resolve, Reject, Listener, native } from "./types";
+import { v4 as uuidv4 } from "uuid";
 
 enum BridgeCallType {
-  NONE = 'NONE',
-  ASYNC = 'ASYNC',
-  LISTENER = 'LISTENER',
+  NONE = "NONE",
+  ASYNC = "ASYNC",
+  LISTENER = "LISTENER",
 }
 
-class BridgeCall<T> {
+class BridgeCall {
   readonly id: BridgeCallId = uuidv4();
   readonly name: string;
-  data: BridgeCallData<T> = null;
+  data: BridgeCallData = null;
   readonly type: BridgeCallType = BridgeCallType.NONE;
   readonly successful = false;
   constructor(name: string) {
@@ -17,8 +18,8 @@ class BridgeCall<T> {
   }
 }
 
-class AsyncBridgeCall<T> extends BridgeCall<T> {
-  readonly type = BridgeCallType.ASYNC;
+class AsyncBridgeCall<T> extends BridgeCall {
+  type = BridgeCallType.ASYNC;
   readonly resolve: Resolve<T>;
   readonly reject: Reject<T>;
   constructor(name: string, resolve: Resolve<T>, reject: Reject<T>) {
@@ -28,8 +29,8 @@ class AsyncBridgeCall<T> extends BridgeCall<T> {
   }
 }
 
-class ListenerBridgeCall<T> extends BridgeCall<T> {
-  readonly type = BridgeCallType.LISTENER;
+class ListenerBridgeCall<T> extends BridgeCall {
+  type = BridgeCallType.LISTENER;
   readonly listener: Listener<T>;
   constructor(name: string, listener: Listener<T>) {
     super(name);
@@ -37,10 +38,10 @@ class ListenerBridgeCall<T> extends BridgeCall<T> {
   }
 }
 
-class Bridge<T> {
-  private bridgeCallMap = new Map<BridgeCallId, BridgeCall<T>>();
+export class Bridge {
+  private bridgeCallMap = new Map<BridgeCallId, BridgeCall>();
 
-  send(bridgeCall: BridgeCall<T>): void {
+  send(bridgeCall: BridgeCall): void {
     this.bridgeCallMap.set(bridgeCall.id, bridgeCall);
     native.process(JSON.stringify(bridgeCall));
   }
@@ -55,9 +56,9 @@ class Bridge<T> {
 
   receive(bridgeCallJson: string): boolean {
     try {
-      const bridgeCall = JSON.parse(bridgeCallJson) as BridgeCall<T>;
+      const bridgeCall = JSON.parse(bridgeCallJson) as BridgeCall;
       const call = this.bridgeCallMap.get(bridgeCall.id);
-      if (call == null) return false;
+      if (call === undefined) return false;
       if (call instanceof AsyncBridgeCall) {
         if (bridgeCall.successful) {
           call.resolve(bridgeCall.data);
@@ -75,27 +76,27 @@ class Bridge<T> {
   }
 }
 
-const bridge = new Bridge<string>();
-
 export class BridgePlugin {
-  asyncCall(name: string, data: BridgeCallData<string> = null): Promise<string> {
-    return new Promise<string>((resolve, reject) => {
-      const call = new AsyncBridgeCall<string>(name, resolve, reject);
+  constructor(private bridge: Bridge) {}
+
+  asyncCall(name: string, data: BridgeCallData = null): Promise<BridgeCallData> {
+    return new Promise((resolve, reject) => {
+      const call = new AsyncBridgeCall(name, resolve, reject);
       call.data = data;
       try {
-        bridge.send(call);
+        this.bridge.send(call);
       } catch (error) {
         reject(error);
       }
     });
   }
 
-  listenerCall(name: string, listener: Listener<string>, data: BridgeCallData<string> = null): Promise<string> {
+  listenerCall(name: string, listener: Listener<BridgeCallData>, data: BridgeCallData = null): Promise<BridgeCallId> {
     return new Promise<string>((resolve, reject) => {
-      const call = new ListenerBridgeCall<string>(name, listener);
+      const call = new ListenerBridgeCall(name, listener);
       call.data = data;
       try {
-        bridge.send(call);
+        this.bridge.send(call);
         resolve(call.id);
       } catch (error) {
         reject(error);
@@ -104,8 +105,6 @@ export class BridgePlugin {
   }
 
   removeCall(id: BridgeCallId): boolean {
-    return bridge.remove(id);
+    return this.bridge.remove(id);
   }
 }
-
-window.bridge = bridge;
