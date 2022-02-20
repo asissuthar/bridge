@@ -46,13 +46,15 @@ export class Bridge {
     // eslint-disable-next-line no-prototype-builtins
     if (window.hasOwnProperty("native")) {
       try {
-        window["native"].process(JSON.stringify(bridgeCall));
+        if (!window["native"].process(JSON.stringify(bridgeCall))) {
+          this.remove(bridgeCall.id);
+        }
       } catch (error) {
-        this.bridgeCallMap.delete(bridgeCall.id);
+        this.remove(bridgeCall.id);
         throw error;
       }
     } else {
-      this.bridgeCallMap.delete(bridgeCall.id);
+      this.remove(bridgeCall.id);
     }
   }
 
