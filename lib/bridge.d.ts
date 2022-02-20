@@ -17,6 +17,7 @@ export declare class Bridge {
     send(bridgeCall: BridgeCall): void;
     remove(id: BridgeCallId): boolean;
     clear(): void;
+    canReceive(bridgeCallId: BridgeCallId): boolean;
     receive(bridgeCallJson: string): boolean;
 }
 export declare class BridgePlugin {
