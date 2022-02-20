@@ -64,6 +64,10 @@ export class Bridge {
     return this.bridgeCallMap.clear();
   }
 
+  canReceive(bridgeCallId: BridgeCallId): boolean {
+    return this.bridgeCallMap.has(bridgeCallId);
+  }
+
   receive(bridgeCallJson: string): boolean {
     try {
       const bridgeCall = JSON.parse(bridgeCallJson) as BridgeCall;
