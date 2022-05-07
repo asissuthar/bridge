@@ -12,6 +12,12 @@ declare class BridgeCall {
     readonly successful = false;
     constructor(name: string);
 }
+export declare class BridgeInactiveError extends Error {
+    constructor();
+}
+export declare class BridgeUnavailableError extends Error {
+    constructor();
+}
 export declare class Bridge {
     private bridgeCallMap;
     send(bridgeCall: BridgeCall): void;
