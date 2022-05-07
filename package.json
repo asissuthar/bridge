@@ -1,6 +1,6 @@
 {
   "name": "@asissuthar/bridge",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Communication between WebView and Native",
   "main": "lib/bridge.js",
   "repository": "https://github.com/asissuthar/bridge.git",
@@ -13,8 +13,8 @@
     "prepare": "npm run build",
     "prepublishOnly": "npm run lint",
     "preversion": "npm run lint",
-    "version": "npm run format && git add -A src",
-    "postversion": "git push origin master"
+    "version": "npm run format",
+    "postversion": ""
   },
   "dependencies": {
     "uuid": "^8.3.2"
