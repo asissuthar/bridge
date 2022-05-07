@@ -48,6 +48,7 @@ export class Bridge {
       try {
         if (!window["native"].process(JSON.stringify(bridgeCall))) {
           this.remove(bridgeCall.id);
+          throw new Error("bridge inactive");
         }
       } catch (error) {
         this.remove(bridgeCall.id);
@@ -55,6 +56,7 @@ export class Bridge {
       }
     } else {
       this.remove(bridgeCall.id);
+      throw new Error("bridge unavailable");
     }
   }
 
