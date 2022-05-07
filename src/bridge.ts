@@ -38,6 +38,18 @@ class ListenerBridgeCall<T> extends BridgeCall {
   }
 }
 
+export class BridgeInactiveError extends Error {
+  constructor() {
+    super("BridgeInactiveError");
+  }
+}
+
+export class BridgeUnavailableError extends Error {
+  constructor() {
+    super("BridgeUnavailableError");
+  }
+}
+
 export class Bridge {
   private bridgeCallMap = new Map<BridgeCallId, BridgeCall>();
 
@@ -48,7 +60,7 @@ export class Bridge {
       try {
         if (!window["native"].process(JSON.stringify(bridgeCall))) {
           this.remove(bridgeCall.id);
-          throw new Error("bridge inactive");
+          throw new BridgeInactiveError();
         }
       } catch (error) {
         this.remove(bridgeCall.id);
@@ -56,7 +68,7 @@ export class Bridge {
       }
     } else {
       this.remove(bridgeCall.id);
-      throw new Error("bridge unavailable");
+      throw new BridgeUnavailableError();
     }
   }
 
