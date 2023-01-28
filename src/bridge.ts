@@ -50,15 +50,23 @@ export class BridgeUnavailableError extends Error {
   }
 }
 
+export class BridgeCallRemovedError extends Error {
+  constructor() {
+    super("BridgeCallRemovedError");
+  }
+}
+
 export class Bridge {
   private bridgeCallMap = new Map<BridgeCallId, BridgeCall>();
+
+  constructor(private connector = "native") {}
 
   send(bridgeCall: BridgeCall): void {
     this.bridgeCallMap.set(bridgeCall.id, bridgeCall);
     // eslint-disable-next-line no-prototype-builtins
-    if (window.hasOwnProperty("native")) {
+    if (window.hasOwnProperty(this.connector)) {
       try {
-        if (!window["native"].process(JSON.stringify(bridgeCall))) {
+        if (!window[this.connector].process(JSON.stringify(bridgeCall))) {
           this.remove(bridgeCall.id);
           throw new BridgeInactiveError();
         }
@@ -72,16 +80,33 @@ export class Bridge {
     }
   }
 
-  remove(id: BridgeCallId): boolean {
+  remove(id: BridgeCallId, silent = true): boolean {
+    if (!silent) {
+      const call = this.bridgeCallMap.get(id);
+      if (call !== undefined) {
+        if (call instanceof AsyncBridgeCall) {
+          call.reject(new BridgeCallRemovedError());
+        } else if (call instanceof ListenerBridgeCall) {
+          call.listener(null, false, new BridgeCallRemovedError());
+        }
+      }
+    }
     return this.bridgeCallMap.delete(id);
   }
 
   clear(): void {
-    return this.bridgeCallMap.clear();
+    this.bridgeCallMap.forEach((call) => {
+      if (call instanceof AsyncBridgeCall) {
+        call.reject(new BridgeCallRemovedError());
+      } else if (call instanceof ListenerBridgeCall) {
+        call.listener(null, false, new BridgeCallRemovedError());
+      }
+    });
+    this.bridgeCallMap.clear();
   }
 
-  canReceive(bridgeCallId: BridgeCallId): boolean {
-    return this.bridgeCallMap.has(bridgeCallId);
+  canReceive(id: BridgeCallId): boolean {
+    return this.bridgeCallMap.has(id);
   }
 
   receive(bridgeCallJson: string): boolean {
@@ -97,7 +122,7 @@ export class Bridge {
         }
         this.remove(call.id);
       } else if (call instanceof ListenerBridgeCall) {
-        call.listener(bridgeCall.data, bridgeCall.successful);
+        call.listener(bridgeCall.data, bridgeCall.successful, null);
       }
       return true;
     } catch (error) {
@@ -122,7 +147,7 @@ export class BridgePlugin {
   }
 
   listenerCall(name: string, listener: Listener<BridgeCallData>, data: BridgeCallData = null): Promise<BridgeCallId> {
-    return new Promise<string>((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       const call = new ListenerBridgeCall(name, listener);
       call.data = data;
       try {

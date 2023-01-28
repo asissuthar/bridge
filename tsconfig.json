@@ -1,16 +1,25 @@
 {
-    "compilerOptions": {
-        "strict": true,
-        "target": "ES6",
-        "module": "CommonJS",
-        "declaration": true,
-        "suppressImplicitAnyIndexErrors": true,
-        "outDir": "./lib",
-    },
-    "include": [
-        "src"
+  "compilerOptions": {
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "lib": [
+      "ESNext",
+      "DOM"
     ],
-    "exclude": [
-        "node_modules"
-    ]
+    "moduleResolution": "Node",
+    "strict": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "noEmit": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "skipLibCheck": true,
+    "suppressImplicitAnyIndexErrors": true,
+  },
+  "include": [
+    "src"
+  ]
 }

@@ -18,12 +18,17 @@ export declare class BridgeInactiveError extends Error {
 export declare class BridgeUnavailableError extends Error {
     constructor();
 }
+export declare class BridgeCallRemovedError extends Error {
+    constructor();
+}
 export declare class Bridge {
+    private connector;
     private bridgeCallMap;
+    constructor(connector?: string);
     send(bridgeCall: BridgeCall): void;
-    remove(id: BridgeCallId): boolean;
+    remove(id: BridgeCallId, silent?: boolean): boolean;
     clear(): void;
-    canReceive(bridgeCallId: BridgeCallId): boolean;
+    canReceive(id: BridgeCallId): boolean;
     receive(bridgeCallJson: string): boolean;
 }
 export declare class BridgePlugin {
