@@ -111,7 +111,7 @@ class y {
     });
   }
   removeCall(e) {
-    return this.bridge.remove(e);
+    return this.bridge.remove(e, !1);
   }
 }
 export {

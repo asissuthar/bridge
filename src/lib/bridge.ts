@@ -66,7 +66,7 @@ export class Bridge {
     // eslint-disable-next-line no-prototype-builtins
     if (window.hasOwnProperty(this.connector)) {
       try {
-        if (!window[this.connector].process(JSON.stringify(bridgeCall))) {
+        if (!window[this.connector as keyof Window].process(JSON.stringify(bridgeCall))) {
           this.remove(bridgeCall.id);
           throw new BridgeInactiveError();
         }
@@ -160,6 +160,6 @@ export class BridgePlugin {
   }
 
   removeCall(id: BridgeCallId): boolean {
-    return this.bridge.remove(id);
+    return this.bridge.remove(id, false);
   }
 }
