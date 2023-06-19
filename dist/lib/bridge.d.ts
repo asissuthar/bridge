@@ -1,4 +1,4 @@
-import { BridgeCallId, BridgeCallData, Listener } from "./types";
+import { BridgeCallId, BridgeCallData, Listener, BridgeMethod } from "./types";
 declare enum BridgeCallType {
     NONE = "NONE",
     ASYNC = "ASYNC",
@@ -34,6 +34,7 @@ export declare class Bridge {
 export declare class BridgePlugin {
     private bridge;
     constructor(bridge: Bridge);
+    addMethod(name: string, method: BridgeMethod): void;
     asyncCall(name: string, data?: BridgeCallData): Promise<BridgeCallData>;
     listenerCall(name: string, listener: Listener<BridgeCallData>, data?: BridgeCallData): Promise<BridgeCallId>;
     removeCall(id: BridgeCallId): boolean;

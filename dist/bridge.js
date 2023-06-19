@@ -1,10 +1,10 @@
 var f = Object.defineProperty;
 var g = (t, e, r) => e in t ? f(t, e, { enumerable: !0, configurable: !0, writable: !0, value: r }) : t[e] = r;
 var i = (t, e, r) => (g(t, typeof e != "symbol" ? e + "" : e, r), r);
-import { v4 as p } from "uuid";
+import { v4 as v } from "uuid";
 class u {
   constructor(e) {
-    i(this, "id", p());
+    i(this, "id", v());
     i(this, "name");
     i(this, "data", null);
     i(this, "type", "NONE");
@@ -29,7 +29,7 @@ class d extends u {
     this.listener = s;
   }
 }
-class v extends Error {
+class p extends Error {
   constructor() {
     super("BridgeInactiveError");
   }
@@ -53,7 +53,7 @@ class E {
     if (this.bridgeCallMap.set(e.id, e), window.hasOwnProperty(this.connector))
       try {
         if (!window[this.connector].process(JSON.stringify(e)))
-          throw this.remove(e.id), new v();
+          throw this.remove(e.id), new p();
       } catch (r) {
         throw this.remove(e.id), r;
       }
@@ -88,25 +88,32 @@ class y {
   constructor(e) {
     this.bridge = e;
   }
+  addMethod(e, r) {
+    this.listenerCall(`${e}.invoke`, (s) => {
+      r(s).then((n) => {
+        this.asyncCall(`${e}.return`, n);
+      });
+    });
+  }
   asyncCall(e, r = null) {
     return new Promise((s, n) => {
-      const l = new c(e, s, n);
-      l.data = r;
+      const a = new c(e, s, n);
+      a.data = r;
       try {
-        this.bridge.send(l);
-      } catch (a) {
-        n(a);
+        this.bridge.send(a);
+      } catch (l) {
+        n(l);
       }
     });
   }
   listenerCall(e, r, s = null) {
-    return new Promise((n, l) => {
-      const a = new d(e, r);
-      a.data = s;
+    return new Promise((n, a) => {
+      const l = new d(e, r);
+      l.data = s;
       try {
-        this.bridge.send(a), n(a.id);
+        this.bridge.send(l), n(l.id);
       } catch (h) {
-        l(h);
+        a(h);
       }
     });
   }
@@ -117,7 +124,7 @@ class y {
 export {
   E as Bridge,
   o as BridgeCallRemovedError,
-  v as BridgeInactiveError,
+  p as BridgeInactiveError,
   y as BridgePlugin,
   w as BridgeUnavailableError
 };
