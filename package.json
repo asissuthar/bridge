@@ -1,6 +1,6 @@
 {
   "name": "@asissuthar/bridge",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "Communication between WebView and Native",
   "repository": "https://github.com/asissuthar/bridge.git",
   "author": "Ashish Suthar <asissuthar@gmail.com>",

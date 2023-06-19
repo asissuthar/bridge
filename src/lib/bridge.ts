@@ -1,4 +1,4 @@
-import { BridgeCallId, BridgeCallData, Resolve, Reject, Listener } from "./types";
+import { BridgeCallId, BridgeCallData, Resolve, Reject, Listener, BridgeMethod } from "./types";
 import { v4 as uuidv4 } from "uuid";
 
 enum BridgeCallType {
@@ -133,6 +133,14 @@ export class Bridge {
 
 export class BridgePlugin {
   constructor(private bridge: Bridge) {}
+
+  addMethod(name: string, method: BridgeMethod) {
+    this.listenerCall(`${name}.invoke`, (args: BridgeCallData) => {
+      method(args).then((returnData) => {
+        this.asyncCall(`${name}.return`, returnData);
+      });
+    });
+  }
 
   asyncCall(name: string, data: BridgeCallData = null): Promise<BridgeCallData> {
     return new Promise((resolve, reject) => {
