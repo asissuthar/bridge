@@ -134,8 +134,8 @@ export class Bridge {
 export class BridgePlugin {
   constructor(private bridge: Bridge) {}
 
-  addMethod(name: string, method: BridgeMethod) {
-    this.listenerCall(`${name}.invoke`, (args: BridgeCallData) => {
+  addMethod(name: string, method: BridgeMethod): Promise<BridgeCallId> {
+    return this.listenerCall(`${name}.invoke`, (args: BridgeCallData) => {
       method(args).then((returnData) => {
         this.asyncCall(`${name}.return`, returnData);
       });
