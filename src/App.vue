@@ -1,7 +1,7 @@
 <template>
-    <div>
-        <h1>{{ data }}</h1>
-    </div>
+  <div>
+    <h1>{{ data }}</h1>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -14,24 +14,24 @@ const data = ref("loading");
 window.bridge = new Bridge();
 
 class App extends BridgePlugin {
-    constructor(bridge: Bridge) {
-        super(bridge);
-        this.addMethod("app.invoke_from_android", this.invokeFromAndroid);
-    }
+  constructor(bridge: Bridge) {
+    super(bridge);
+    this.addMethod("app.invoke_from_android", this.invokeFromAndroid);
+  }
 
-    private async invokeFromAndroid(_data: BridgeCallData) {
-        data.value = "invokeFromAndroid = " + _data;
-        return "data from webview";
-    }
+  private async invokeFromAndroid(_data: BridgeCallData) {
+    data.value = "invokeFromAndroid = " + _data;
+    return "data from webview";
+  }
 
-    async toast(message: string) {
-        this.asyncCall("app.toast", message);
-    }
+  async toast(message: string) {
+    this.asyncCall("app.toast", message);
+  }
 }
 
 const app = new App(window.bridge);
 
 onMounted(async () => {
-    app.toast("onMounted");
+  app.toast("onMounted");
 });
 </script>

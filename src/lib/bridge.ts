@@ -136,9 +136,17 @@ export class BridgePlugin {
 
   addMethod(name: string, method: BridgeMethod): Promise<BridgeCallId> {
     return this.listenerCall(`${name}.invoke`, (args: BridgeCallData) => {
-      method(args).then((returnData) => {
-        this.asyncCall(`${name}.return`, returnData);
-      });
+      method(args)
+        .then((returnData) => {
+          this.asyncCall(`${name}.return`, returnData);
+        })
+        .catch((error) => {
+          let message = error;
+          if (error instanceof Error) {
+            message = error.message;
+          }
+          this.asyncCall(`${name}.error`, message);
+        });
     });
   }
 

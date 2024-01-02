@@ -34,7 +34,7 @@ export declare class Bridge {
 export declare class BridgePlugin {
     private bridge;
     constructor(bridge: Bridge);
-    addMethod(name: string, method: BridgeMethod): void;
+    addMethod(name: string, method: BridgeMethod): Promise<BridgeCallId>;
     asyncCall(name: string, data?: BridgeCallData): Promise<BridgeCallData>;
     listenerCall(name: string, listener: Listener<BridgeCallData>, data?: BridgeCallData): Promise<BridgeCallId>;
     removeCall(id: BridgeCallId): boolean;

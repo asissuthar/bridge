@@ -1,31 +1,31 @@
 var f = Object.defineProperty;
 var g = (t, e, r) => e in t ? f(t, e, { enumerable: !0, configurable: !0, writable: !0, value: r }) : t[e] = r;
-var i = (t, e, r) => (g(t, typeof e != "symbol" ? e + "" : e, r), r);
+var n = (t, e, r) => (g(t, typeof e != "symbol" ? e + "" : e, r), r);
 import { v4 as v } from "uuid";
-class u {
+class h {
   constructor(e) {
-    i(this, "id", v());
-    i(this, "name");
-    i(this, "data", null);
-    i(this, "type", "NONE");
-    i(this, "successful", !1);
+    n(this, "id", v());
+    n(this, "name");
+    n(this, "data", null);
+    n(this, "type", "NONE");
+    n(this, "successful", !1);
     this.name = e;
   }
 }
-class c extends u {
-  constructor(r, s, n) {
+class o extends h {
+  constructor(r, s, i) {
     super(r);
-    i(this, "type", "ASYNC");
-    i(this, "resolve");
-    i(this, "reject");
-    this.resolve = s, this.reject = n;
+    n(this, "type", "ASYNC");
+    n(this, "resolve");
+    n(this, "reject");
+    this.resolve = s, this.reject = i;
   }
 }
-class d extends u {
+class d extends h {
   constructor(r, s) {
     super(r);
-    i(this, "type", "LISTENER");
-    i(this, "listener");
+    n(this, "type", "LISTENER");
+    n(this, "listener");
     this.listener = s;
   }
 }
@@ -39,14 +39,14 @@ class w extends Error {
     super("BridgeUnavailableError");
   }
 }
-class o extends Error {
+class c extends Error {
   constructor() {
     super("BridgeCallRemovedError");
   }
 }
 class E {
   constructor(e = "native") {
-    i(this, "bridgeCallMap", /* @__PURE__ */ new Map());
+    n(this, "bridgeCallMap", /* @__PURE__ */ new Map());
     this.connector = e;
   }
   send(e) {
@@ -63,13 +63,13 @@ class E {
   remove(e, r = !0) {
     if (!r) {
       const s = this.bridgeCallMap.get(e);
-      s !== void 0 && (s instanceof c ? s.reject(new o()) : s instanceof d && s.listener(null, !1, new o()));
+      s !== void 0 && (s instanceof o ? s.reject(new c()) : s instanceof d && s.listener(null, !1, new c()));
     }
     return this.bridgeCallMap.delete(e);
   }
   clear() {
     this.bridgeCallMap.forEach((e) => {
-      e instanceof c ? e.reject(new o()) : e instanceof d && e.listener(null, !1, new o());
+      e instanceof o ? e.reject(new c()) : e instanceof d && e.listener(null, !1, new c());
     }), this.bridgeCallMap.clear();
   }
   canReceive(e) {
@@ -78,7 +78,7 @@ class E {
   receive(e) {
     try {
       const r = JSON.parse(e), s = this.bridgeCallMap.get(r.id);
-      return s === void 0 ? !1 : (s instanceof c ? (r.successful ? s.resolve(r.data) : s.reject(r.data), this.remove(s.id)) : s instanceof d && s.listener(r.data, r.successful, null), !0);
+      return s === void 0 ? !1 : (s instanceof o ? (r.successful ? s.resolve(r.data) : s.reject(r.data), this.remove(s.id)) : s instanceof d && s.listener(r.data, r.successful, null), !0);
     } catch {
       return !1;
     }
@@ -89,31 +89,34 @@ class y {
     this.bridge = e;
   }
   addMethod(e, r) {
-    this.listenerCall(`${e}.invoke`, (s) => {
-      r(s).then((n) => {
-        this.asyncCall(`${e}.return`, n);
+    return this.listenerCall(`${e}.invoke`, (s) => {
+      r(s).then((i) => {
+        this.asyncCall(`${e}.return`, i);
+      }).catch((i) => {
+        let a = i;
+        i instanceof Error && (a = i.message), this.asyncCall(`${e}.error`, a);
       });
     });
   }
   asyncCall(e, r = null) {
-    return new Promise((s, n) => {
-      const a = new c(e, s, n);
+    return new Promise((s, i) => {
+      const a = new o(e, s, i);
       a.data = r;
       try {
         this.bridge.send(a);
       } catch (l) {
-        n(l);
+        i(l);
       }
     });
   }
   listenerCall(e, r, s = null) {
-    return new Promise((n, a) => {
+    return new Promise((i, a) => {
       const l = new d(e, r);
       l.data = s;
       try {
-        this.bridge.send(l), n(l.id);
-      } catch (h) {
-        a(h);
+        this.bridge.send(l), i(l.id);
+      } catch (u) {
+        a(u);
       }
     });
   }
@@ -123,7 +126,7 @@ class y {
 }
 export {
   E as Bridge,
-  o as BridgeCallRemovedError,
+  c as BridgeCallRemovedError,
   p as BridgeInactiveError,
   y as BridgePlugin,
   w as BridgeUnavailableError
